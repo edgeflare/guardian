@@ -1,9 +1,9 @@
 module github.com/edgeflare/guardian
 
-go 1.23rc2
+go 1.23
 
 require (
-	github.com/edgeflare/pgo v0.0.0-20240808194800-d00a968a02f4
+	github.com/edgeflare/pgo v0.0.0-20240815201101-6ec40c529142
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e

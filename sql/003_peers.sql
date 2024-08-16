@@ -21,8 +21,12 @@ CREATE TABLE IF NOT EXISTS peers (
     mtu INT DEFAULT 1420,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    uuid UUID DEFAULT generate_ulid()
+    uuid UUID DEFAULT generate_ulid(),
+    EXCLUDE USING gist (addr inet_ops WITH =) -- Prevent overlapping peer IPs
 );
+
+-- indexes
+CREATE INDEX ON peers USING gist (addr);
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON peers TO authn;
 -- TODO: RLS

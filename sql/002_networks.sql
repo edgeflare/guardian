@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
 CREATE DOMAIN domain_name AS VARCHAR(255)
 CHECK (
     VALUE ~* '^(\*\.)?([a-z0-9]([-a-z0-9]*[a-z0-9])?\.)*[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z]{2,})$'
@@ -14,8 +16,12 @@ CREATE TABLE IF NOT EXISTS networks (
     user_id TEXT NOT NULL REFERENCES public.users(id),
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    uuid UUID DEFAULT generate_ulid() NOT NULL
+    uuid UUID DEFAULT generate_ulid() NOT NULL,
+    EXCLUDE USING gist (addr inet_ops WITH &&) -- Prevent overlapping networks
 );
+
+-- indexes
+CREATE INDEX ON networks USING gist (addr);
 
 -- Permissions
 GRANT SELECT, INSERT, UPDATE, DELETE ON networks TO authn;

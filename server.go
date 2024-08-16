@@ -54,7 +54,12 @@ func main() {
 		query := `SELECT id, name, addr, addr6, dns, user_id, info, domains, created_at,
 		updated_at, uuid FROM networks WHERE user_id = $1`
 
-		user, _ := pgo.OIDCUser(r)
+		user, ok := pgo.OIDCUser(r)
+		if !ok || user.Active == false {
+			pgo.RespondError(w, http.StatusInternalServerError, "failed to get OIDC user")
+			return
+		}
+
 		pgo.SelectAndRespondJSON[wg.Network](w, r, query, []any{user.Subject}, pgx.RowToStructByPos[wg.Network])
 	}))
 
@@ -64,7 +69,13 @@ func main() {
 			return
 		}
 
-		user, _ := pgo.OIDCUser(r)
+		// user, _ := pgo.OIDCUser(r)
+		user, ok := pgo.OIDCUser(r)
+		if !ok || user.Active == false {
+			pgo.RespondError(w, http.StatusInternalServerError, "failed to get OIDC user")
+			return
+		}
+
 		reqNet.UserID = user.Subject
 		network := wg.NewDefaultNetwork(reqNet)
 		networkMap := pgo.RowMap(network)
@@ -99,7 +110,7 @@ func main() {
 		}
 	}()
 
-	fmt.Printf("Server is running on port %d\n", port)
+	fmt.Printf("Server is running on port %d\n", *port)
 
 	// Set up signal handling
 	stop := make(chan os.Signal, 1)
