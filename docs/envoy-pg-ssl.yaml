@@ -1,0 +1,83 @@
+# WIP: Envoy Postgres Proxy with SSL (StartTLS) Termination/Passthrough
+admin:
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 9901
+      protocol: TCP
+static_resources:
+  listeners:
+  - name: listener_0
+    address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: 5432
+        protocol: TCP
+    listener_filters:
+      - name: envoy.filters.listener.tls_inspector
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.listener.tls_inspector.v3.TlsInspector
+    filter_chains:
+    - filters:
+      - name: envoy.filters.network.postgres_proxy
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.postgres_proxy.v3alpha.PostgresProxy
+          stat_prefix: postgres
+          # upstream_ssl: REQUIRE # DISABLE if terminate_ssl=true
+          upstream_ssl: DISABLE
+          enable_sql_parsing: false
+          terminate_ssl: true
+      # - name: envoy.filters.network.sni_dynamic_forward_proxy
+      #   typed_config:
+      #     "@type": type.googleapis.com/envoy.extensions.filters.network.sni_dynamic_forward_proxy.v3.FilterConfig
+      #     port_value: 5432
+      #     dns_cache_config:
+      #       name: dynamic_forward_proxy_cache_config
+      #       dns_lookup_family: V4_ONLY
+      - name: envoy.filters.network.tcp_proxy
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+          stat_prefix: tcp
+          cluster: postgres_cluster
+          # cluster: dynamic_forward_proxy_cluster
+          access_log:
+            - name: envoy.access_loggers.stdout
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
+      transport_socket:
+        name: envoy.transport_sockets.starttls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.starttls.v3.StartTlsConfig
+          tls_socket_config:
+            common_tls_context:
+              tls_certificates:
+                certificate_chain:
+                  filename: /etc/envoy/certs/tls.crt
+                private_key:
+                  filename: /etc/envoy/certs/tls.key
+
+  clusters:
+  - name: postgres_cluster
+    connect_timeout: 30s
+    type: LOGICAL_DNS
+    dns_lookup_family: V4_ONLY
+    load_assignment:
+      cluster_name: postgres_cluster
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: db-postgresql-primary
+                port_value: 5432
+                protocol: TCP
+  - name: dynamic_forward_proxy_cluster
+    lb_policy: CLUSTER_PROVIDED
+    cluster_type:
+      name: envoy.clusters.dynamic_forward_proxy
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.clusters.dynamic_forward_proxy.v3.ClusterConfig
+        dns_cache_config:
+          name: dynamic_forward_proxy_cache_config
+          dns_lookup_family: V4_ONLY
+---

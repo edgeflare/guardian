@@ -1,0 +1,18 @@
+graph TD
+    subgraph "WireGuard Mesh Network"
+    P1["Peer1 (Gateway)<br>10.0.0.1"] <.-> P2["Peer2 (Node)<br>10.0.0.2"]
+    P1 <.-> P3["Peer3 (Client)<br>10.0.0.3"]
+    P1 <.-> P4["Peer4 (Client)<br>10.0.0.4"]
+    P2 <.-> P3
+    P2 <.-> P4
+    P3 <.-> P4
+    end
+
+    I[Internet] <--> P1
+
+    classDef gateway fill:#f9f,stroke:#333,stroke-width:4px;
+    classDef node fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef client fill:#bfb,stroke:#333,stroke-width:2px;
+    class P1 gateway;
+    class P2 node;
+    class P3,P4 client;
