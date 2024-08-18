@@ -1,0 +1,25 @@
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { EditorComponent } from 'projects/ng-essential/src/public-api';
+import { NavComponent } from '@shared/components';
+import { AuthService } from '@edgeflare/ng-oidc';
+
+@Component({
+  selector: 'e-account',
+  standalone: true,
+  imports: [CommonModule, EditorComponent, NavComponent],
+  template: `
+  @if(isAuthenticated()) {
+    <ng-editor [inputText]="user() | json" mode="json" [isReadOnly]=true></ng-editor>
+  } @else {
+    <p>You are not authenticated. Please <a routerLink="/login">login</a>.</p>
+  }
+  `,
+  styles: ``
+})
+export class AccountComponent {
+  private authService = inject(AuthService);
+
+  isAuthenticated = this.authService.isAuthenticated;
+  user = this.authService.user;
+}
