@@ -8,6 +8,13 @@ export const DASHBOARD_ROUTES: Routes = [
     pathMatch: 'prefix',
     children: [
       {
+        path: 'networks',
+        loadChildren: () =>
+          import("./networks").then(
+            (m) => m.NETWORK_ROUTES,
+          ),
+      },
+      {
         path: '', pathMatch: 'prefix',
         redirectTo: 'networks',
       },

@@ -9,6 +9,10 @@ Probably the tiniest wireguard manager
 - [ ] minimal web UI (in Angular) WIP
 - [ ] (remote) config reload (upon new peer addition/deletion)
 
+|                                            |                                              |
+|--------------------------------------------|----------------------------------------------|
+| ![peer-qr](./docs/img/peer-qr.png) | ![peer-conf-on-mobile](./docs/img/peer-conf-on-mobile.png)   |
+
 In addition to recording network and peer configs in Postgres, guardian manages
 - [WireGuard](https://www.wireguard.com/)
   - [x] installation/configuration (using [wireguard-tools](https://git.zx2c4.com/wireguard-tools/))

@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
+import { AppShellComponent } from '@app/shared/components';
 
 @Component({
   selector: 'e-dashboard',
   standalone: true,
-  imports: [],
-  templateUrl: './dashboard.component.html',
+  imports: [AppShellComponent],
+  template: `<e-app-shell />`,
   styles: ``
 })
 export class DashboardComponent {

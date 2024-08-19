@@ -1,5 +1,5 @@
 export const environment = {
-  api: "http://localhost:8080",
+  api: "http://localhost:8080/api/v1",
   oidcConfig: {
     authority: "https://iam-b45a263d486c.asia-southeast1.edgeflare.dev",
     client_id: "277428190274717690",
