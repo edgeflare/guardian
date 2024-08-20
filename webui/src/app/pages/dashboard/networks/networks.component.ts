@@ -4,12 +4,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import { EditorComponent, ExpandableTableComponent } from 'ng-essential';
+import { ConfirmDeleteDialogComponent, ConfirmDeleteDialogData, EditorComponent, ExpandableTableComponent } from 'ng-essential';
 import { AuthService } from '@edgeflare/ng-oidc'
 import { NetworkService } from '@app/shared/services/wireguard.service';
-import { IPNet, Network } from '@app/shared/interfaces';
-import { ipNetToCidr } from '@app/shared/util';
+import { Network } from '@app/shared/interfaces';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { environment } from '@env';
 
 /**
  * A component for managing WireGuard networks, displaying them in an expandable table and allowing editing.
@@ -69,7 +69,23 @@ export class NetworksComponent implements OnInit {
     }
   }
 
-  ipNetToCidr = (ipNet: IPNet | string) => ipNetToCidr(ipNet);
+  onDeleteNetwork(network: Network) {
+    const dialogData: ConfirmDeleteDialogData = {
+      itemName: network.name,
+      deleteUrl: `${environment.api}/networks/${network.id}`,
+      itemType: 'network'
+    };
+
+    const dialogRef = this.dialog.open(ConfirmDeleteDialogComponent, {
+      data: dialogData
+    });
+
+    // Subscribe to deletionComplete to get the API response or handle any further actions
+    dialogRef.componentInstance.deletionComplete.subscribe(() => {
+      // refresh data for the table
+      this.networks.update(networks => networks?.filter(item => item.id !== network.id));
+    });
+  }
 
   createNetwork(): void {
     // TODO: implement
@@ -80,14 +96,11 @@ export class NetworksComponent implements OnInit {
     // TODO: implement
   }
 
-  deleteNetwork(network: Network): void {
-    console.log('Deleting network:', network);
-    // TODO: implement
-  }
 }
 
 /**
  * A dialog component for editing network details.
+ * TODO: Implement
  */
 @Component({
   selector: 'e-edit-network-dialog',

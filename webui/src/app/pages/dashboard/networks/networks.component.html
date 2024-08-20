@@ -31,10 +31,15 @@
           <mat-icon>devices</mat-icon>
           <span>PEERS</span>
         </button>
+
+        <button mat-raised-button class="accent-button" (click)="onDeleteNetwork(rowData)">
+          <mat-icon>delete</mat-icon>
+          <span>DELETE</span>
+        </button>
       </div>
 
       @if (isShowDetails) {
-      <ng-editor [inputText]="rowData | json" [mode]="'json'" [isReadOnly]="true">
+      <ng-editor [content]="rowData | json" [mode]="'json'" [isReadOnly]="true" [showGutter]="false">
       </ng-editor>
       }
     </div>

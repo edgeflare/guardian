@@ -9,7 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '@edgeflare/ng-oidc';
-import { EditorComponent, ExpandableTableComponent } from 'ng-essential';
+import { ConfirmDeleteDialogComponent, ConfirmDeleteDialogData, EditorComponent, ExpandableTableComponent } from 'ng-essential';
 import { NetworkService, PeerService } from '@app/shared/services';
 import { Network, Peer } from '@shared/interfaces';
 import { environment } from '@env';
@@ -98,9 +98,28 @@ export class PeersComponent implements OnInit {
       data: peer,
     });
   }
+
   openConfDialog(peer: Peer): void {
     this.dialog.open(PeerConfDialogComponent, {
       data: peer,
+    });
+  }
+
+  onDeletePeer(peer: Peer) {
+    const dialogData: ConfirmDeleteDialogData = {
+      itemName: peer.name,
+      deleteUrl: `${environment.api}/networks/${peer.network_id}/peers/${peer.id}`,
+      itemType: 'peer'
+    };
+
+    const dialogRef = this.dialog.open(ConfirmDeleteDialogComponent, {
+      data: dialogData
+    });
+
+    // Subscribe to deletionComplete to get the API response or handle any further actions
+    dialogRef.componentInstance.deletionComplete.subscribe(() => {
+      // refresh data for the table
+      this.peers.update(peers => peers?.filter(item => item.id !== peer.id));
     });
   }
 
@@ -110,11 +129,6 @@ export class PeersComponent implements OnInit {
 
   editPeer(peer: Peer): void {
     console.log('Editing peer:', peer);
-    // TODO: implement
-  }
-
-  deletePeer(peer: Peer): void {
-    console.log('Deleting peer:', peer);
     // TODO: implement
   }
 

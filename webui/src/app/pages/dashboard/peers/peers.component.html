@@ -28,31 +28,35 @@
     @if (rowData) {
     <div class="element-description">
       <div class="flex flex-wrap gap-4 p-2">
-        <button mat-raised-button class="btn-lg text-lg rounded-none" color="primary" (click)="openQrDialog(rowData)">
+        <button mat-raised-button class="" color="primary" (click)="openQrDialog(rowData)">
           <mat-icon>qr_code_2</mat-icon>
           <span>QR</span>
         </button>
 
-        <button mat-raised-button class="btn-lg text-lg rounded-none" color="primary" (click)="openConfDialog(rowData)">
+        <button mat-raised-button class="" color="primary" (click)="openConfDialog(rowData)">
           <mat-icon>settings</mat-icon>
           <span>CONF</span>
         </button>
 
-        <button mat-raised-button class="btn-lg text-lg rounded-none" color="primary" (click)="toggleDetails()">
+        <button mat-raised-button class="" color="primary" (click)="toggleDetails()">
           <mat-icon>data_object</mat-icon>
           <span>DETAILS</span>
         </button>
 
-        <button disabled mat-raised-button class="btn-lg text-lg rounded-none" color="primary">
+        <button disabled mat-raised-button class="" color="primary">
           <mat-icon>edit</mat-icon>
-          <span>MANAGE</span>
+          <span>EDIT</span>
         </button>
 
+        <button mat-raised-button class="accent-button" (click)="onDeletePeer(rowData)">
+          <mat-icon>delete</mat-icon>
+          <span>DELETE</span>
+        </button>
       </div>
     </div>
 
     @if (isShowDetails) {
-    <ng-editor [inputText]="rowData | json" [mode]="'json'" [isReadOnly]="true"></ng-editor>
+    <ng-editor [content]="rowData | json" [mode]="'json'" [isReadOnly]="true" [showGutter]="false"></ng-editor>
     }
     }
   </ng-template>

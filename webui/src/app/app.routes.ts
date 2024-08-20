@@ -9,7 +9,7 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
     loadChildren: () => import('./pages/dashboard').then((m) => m.DASHBOARD_ROUTES),
     pathMatch: 'prefix',
   },

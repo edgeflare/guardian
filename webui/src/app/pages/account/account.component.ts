@@ -10,7 +10,7 @@ import { AuthService } from '@edgeflare/ng-oidc';
   imports: [CommonModule, EditorComponent, NavComponent],
   template: `
   @if(isAuthenticated()) {
-    <ng-editor [inputText]="user() | json" mode="json" [isReadOnly]=true></ng-editor>
+    <ng-editor [content]="user() | json" mode="json" [isReadOnly]=true></ng-editor>
   } @else {
     <p>You are not authenticated. Please <a routerLink="/login">login</a>.</p>
   }
