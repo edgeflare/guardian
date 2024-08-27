@@ -23,7 +23,8 @@ trobleshoot UDP. on both success and failure, the message `Connection to 10.0.0.
 echo "dummy" | nc -u -v 10.0.0.1 51820
 ```
 
-DNS resolution in CoreDNS using tool like `nslookup`, `dig` etc.
+DNS resolution (with DNSSEC) in CoreDNS using tool like `nslookup`, `dig` etc.
+
 ```shell
  $ nslookup wikipedia.org 10.0.0.1
 Server:		10.0.0.1
@@ -32,26 +33,41 @@ Address:	10.0.0.1#53
 Name:	wikipedia.org
 Address: 185.15.59.224
 
- $ dig @10.0.0.1 cloudflare.com   
+ $ dig @10.0.0.1 cloudflare.com +dnssec
 
-; <<>> DiG 9.10.6 <<>> @10.0.0.1 cloudflare.com
+; <<>> DiG 9.10.6 <<>> @10.0.0.1 cloudflare.com +dnssec
 ; (1 server found)
 ;; global options: +cmd
 ;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 55785
-;; flags: qr aa rd ra ad; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 20811
+;; flags: qr rd ra ad; QUERY: 1, ANSWER: 3, AUTHORITY: 0, ADDITIONAL: 1
 
 ;; OPT PSEUDOSECTION:
-; EDNS: version: 0, flags:; udp: 4096
+; EDNS: version: 0, flags: do; udp: 4096
 ;; QUESTION SECTION:
-;cloudflare.com.			IN	A
+;cloudflare.com.                        IN      A
 
 ;; ANSWER SECTION:
-cloudflare.com.		12	IN	A	104.16.133.229
-cloudflare.com.		12	IN	A	104.16.132.229
+cloudflare.com.         30      IN      RRSIG   A 13 2 300 20240820031942 20240818011942 34505 cloudflare.com. j3rTeUmZbngdEwllgh5KoTpDTdhrgcNZSPgd5+zOCukOcYCPmX5FWE7/ lPreN+DpsThDpasVehw+QQOhjb3veQ==
+cloudflare.com.         30      IN      A       104.16.133.229
+cloudflare.com.         30      IN      A       104.16.132.229
 
-;; Query time: 22 msec
+;; Query time: 30 msec
 ;; SERVER: 10.0.0.1#53(10.0.0.1)
-;; WHEN: Sun Aug 18 11:00:29 CEST 2024
-;; MSG SIZE  rcvd: 103
+;; WHEN: Mon Aug 19 04:21:01 CEST 2024
+;; MSG SIZE  rcvd: 227
+```
+
+Configure Linux to use CoreDNS by updating `/etc/systemd/resolved.conf`
+
+```shell
+DNS=127.0.0.1 1.1.1.1 8.8.8.8 9.9.9.9
+DNSSEC=yes
+Domains=~. # Prevent resolve by metadata service IP, potentially bypassing CoreDNS
+```
+
+```shell
+sudo systemctl restart systemd-resolved
+resolvectl status
+dig com. ns +dnssec
 ```

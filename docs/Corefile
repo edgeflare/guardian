@@ -1,0 +1,11 @@
+.:53 {
+  errors
+  health
+  ready
+  forward . 10.0.0.1 1.1.1.1 8.8.8.8 9.9.9.9
+  cache 30
+  loop
+  reload
+  dnssec
+  loadbalance
+}

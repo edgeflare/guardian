@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  wireguard:
+    image: docker.io/edgeflare/wireguard:nonroot
+    entrypoint:
+    - /bin/sh
+    - -c
+    - |
+      echo "checking if wg0 interface already exists"
+      if ip link show wg0 > /dev/null 2>&1; then
+          echo "interface wg0 already exists, bringing it down"
+          wg-quick down wg0
+      fi
+
+      echo "bringing up the WireGuard interface"
+      wg-quick up /etc/wireguard/wg0.conf
+
+      if [ $? -ne 0 ]; then
+          echo "bringing up WireGuard interface errored" >&2
+          exit 1
+      fi
+      echo "running WireGuard interface in the background"
+      wg show
+
+      echo "setting up iptables rules"
+      echo "allowing traffic to be forwarded in and out of the wg0 interface"
+      iptables -A FORWARD -i wg0 -j ACCEPT
+      iptables -A FORWARD -o wg0 -j ACCEPT
+      echo "enabling VPN to access the internet"
+      iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+      echo "iptables setup complete"
+
+      echo "running container indefinitely"
+      tail -f /dev/null
+    network_mode: host # Emulate hostNetwork
+    cap_add:
+    - NET_ADMIN
+    privileged: true # Match Kubernetes privileged setting (use with caution)
+    ports: # Expose WireGuard port, if not using hostNetwork
+    # - 51820:51820/udp # UDP port for WireGuard
+    volumes:
+    - ./wg0.conf:/etc/wireguard/wg0.conf:ro # Mount the WireGuard configuration
+    healthcheck:
+      test: ["CMD", "wg", "show"]
+      interval: 10s
+      timeout: 1s
+      retries: 3
+      start_period: 30s
+
+  coredns:
+    image: docker.io/coredns/coredns:1.11.1
+    entrypoint: ["/coredns", "-conf", "/etc/coredns/Corefile"]
+    network_mode: host # Emulate hostNetwork
+    cap_add:
+    - NET_BIND_SERVICE
+    ports: # Expose DNS ports, if not using hostNetwork
+    # - 53:53/udp # UDP DNS port
+    # - 53:53/tcp # TCP DNS port
+    volumes:
+    - ./Corefile:/etc/coredns/Corefile # Mount the CoreDNS configuration
+
+  # optional, if hostname based routing, etc needed
+  # envoy:
+  #   image: docker.io/envoyproxy/envoy-contrib:v1.31-latest
+  #   entrypoint: ["/usr/local/bin/envoy", "--config-path", "/etc/envoy/envoy.yaml"]
+  #   network_mode: host # Emulate hostNetwork
+  #   user: 1000 # Run as non-root user
+  #   ports:
+  #   - 80:80   # HTTP port
+  #   - 443:443 # HTTPS port
+  #   # - 5432:5432 # example TCP (PostgreSQL) port
+  #   - 9901:9901 # Admin port
+  #   volumes:
+  #   - envoy.yaml:/etc/envoy/envoy.yaml:ro # Mount the Envoy configuration configmap
+  #   - tls:/etc/envoy/tls:ro # must contain tls.crt and tls.key

@@ -71,6 +71,42 @@ metadata:
 spec:
  selfSigned: {}
 EOF
+
+  # Create letsencrypt-staging ClusterIssuer
+#   cat <<EOF | sudo k3s kubectl apply -f -
+# apiVersion: cert-manager.io/v1
+# kind: ClusterIssuer
+# metadata:
+#   name: letsencrypt-staging
+# spec:
+#   acme:
+#     email: user@example.com ## <---------------------------- REPLACE EMAIL AND UNCOMMENT
+#     server: https://acme-staging-v02.api.letsencrypt.org/directory
+#     privateKeySecretRef:
+#       name: letsencrypt-staging-clusterissuer-account-key
+#     solvers:
+#     - http01:
+#         ingress:
+#           ingressClassName: istio
+# EOF
+
+#   # Create letsencrypt-prod ClusterIssuer
+#   cat <<EOF | sudo k3s kubectl apply -f -
+# apiVersion: cert-manager.io/v1
+# kind: ClusterIssuer
+# metadata:
+#   name: letsencrypt-prod
+# spec:
+#   acme:
+#     email: user@example.com ## <---------------------------- REPLACE EMAIL AND UNCOMMENT
+#     server: https://acme-v02.api.letsencrypt.org/directory
+#     privateKeySecretRef:
+#       name: letsencrypt-prod-clusterissuer-account-key
+#     solvers:
+#     - http01:
+#         ingress:
+#           ingressClassName: istio
+# EOF
 }
 
 # Install K3s

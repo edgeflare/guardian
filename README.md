@@ -26,7 +26,15 @@ In addition to recording network and peer configs in Postgres, guardian manages
   - [ ] installation/configuration
   - [ ] peer status exchange
 
-The above components run as containers and can be installed using [wireguard-guardian](https://github.com/edgeflare/helm-charts/tree/main/charts/wireguard-guardian) Helm chart. See [docs](./docs) for config examples, and respective software documentation. Though possible on [Docker](https://www.docker.com), prefer running the containers on a [Kubernetes](https://kubernetes.io) cluster. CNCF approved [k3s](https://github.com/k3s-io/k3s), which runs even on Raspberry Pi, is simple and sufficient for personal and light workloads. Docs have a script, [install-k3s.sh](./docs/install-k3s.sh), for installing k3s with required config. In dev env, maybe try [kind](https://kind.sigs.k8s.io/), [k3d](https://k3d.io/).
+## Quickstart
+
+### Docker
+See [docker.md](./docs/docker.md), and [docker-compose.yaml](./docs/docker-compose.yaml) for running guardian stack in Docker.
+
+### Kubernetes
+Use [wireguard-guardian](https://github.com/edgeflare/helm-charts/tree/main/charts/wireguard-guardian) Helm chart.
+
+[docs](./docs) contains examples. Checkout respective software documentation for more.
 
 ## WireGuard
 > WireGuard® is an extremely simple yet fast and modern VPN that utilizes state-of-the-art cryptography.
